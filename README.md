@@ -11,35 +11,25 @@ Multiseat setups allow multiple users to share a single Linux system, each with 
 - Viewing connected input/output devices
 - Creating, updating, and removing seats
 - Assigning or detaching devices from specific seats
-- (Planned) AI-powered auto-configuration based on hardware profiles
 
 ---
 
-## ✨ Features
-
-- 🔌 Live device discovery (mouse, keyboard, display)
-- 👤 CRUD operations for seat management
-- 🧲 Easy device-seat linking/unlinking
-- 📊 Seat/session overview (with TTY and seat ID info)
-- 🤖 **(Experimental)**: AI-assisted autoconfig for optimal seat setup
-- 🛡️ Built-in privilege escalation via `polkit` (optional)
-- 💾 Config export for backup or deployment
-
----
 
 ## 🧱 Tech Stack
 
 - **Python 3.13**
 - **PyQt5** – for building the GUI
 - `loginctl`, `udevadm` – for interacting with systemd and udev
-- (Optional) `pyudev` – for live device detection
 - `subprocess` – for shell command execution
 
 ---
+## 📁 Project Structure & Architecture 
+This project uses Clean Architecture, organizing code into four main layers:
+- Domain: Core entities like Seat and Device, pure logic with no dependencies.
+- Use Cases: Application logic — actions like assigning devices to seats.
+- Interface Adapters: Bridges between GUI/system and core logic — includes controllers and gateways.
+- Frameworks: Outer layer — PyQt5 GUI, system tools (loginctl, udevadm).
+
 
 ## 🚀 Installation
-
-### 1. Clone the repo
-```bash
-git clone https://github.com/your-username/multiseat-manager.git
-cd multiseat-manager
+(To be added)
