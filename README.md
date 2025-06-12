@@ -24,12 +24,8 @@ Multiseat setups allow multiple users to share a single Linux system, each with 
 
 ---
 ## 📁 Project Structure & Architecture 
-This project uses Clean Architecture, organizing code into four main layers:
-- Domain: Core entities like Seat and Device, pure logic with no dependencies.
-- Use Cases: Application logic — actions like assigning devices to seats.
-- Interface Adapters: Bridges between GUI/system and core logic — includes controllers and gateways.
-- Frameworks: Outer layer — PyQt5 GUI, system tools (loginctl, udevadm).
-
+This project structure is inspired by the MVC model, with models for a seat, session and a device and an interface for MultiseatManager,
+the SystemdMultiseatManager implement this interface. I plan to refine the code later so the view is agnostic to the exact implementation, but that seems unnecessary for now as I am sorely focused on linux.
 
 ## 🚀 Installation
 (To be added)

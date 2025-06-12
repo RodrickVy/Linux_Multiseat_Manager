@@ -1,6 +1,9 @@
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QListWidget, QHBoxLayout, QStackedWidget, QLabel
-from frameworks.gui.components.side_nav import SideNavWidget
-from frameworks.gui.pages.seats import SeatsPage
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QStackedWidget, QLabel
+from view.components.side_nav import SideNavWidget
+from view.pages.about import AboutPage
+from view.pages.device import DevicesPage
+from view.pages.seats import SeatsPage
+from view.pages.session import SessionsPage
 
 
 class MainWindow(QWidget):
@@ -14,9 +17,9 @@ class MainWindow(QWidget):
         # Main stack of pages
         self.stack = QStackedWidget()
         self.stack.addWidget(SeatsPage())
-        self.stack.addWidget(self.page("Device Management"))
-        self.stack.addWidget(self.page("Session Viewer"))
-        self.stack.addWidget(self.page("About this App"))
+        self.stack.addWidget(DevicesPage())
+        self.stack.addWidget(SessionsPage())
+        self.stack.addWidget(AboutPage())
 
         # Side navigation
         self.sidebar = SideNavWidget(self.stack)

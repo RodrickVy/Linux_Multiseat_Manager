@@ -26,10 +26,3 @@ class Session:
         """Determine if session is likely GUI based."""
         return self.tty is not None and self.tty.startswith("tty")
 
-    def __repr__(self):
-        return (
-            f"Session(session_id"
-            f"={self.id}, user={self.user}, seat={self.seat}, "
-            f"state={self.state}, tty={self.tty}, class={self.class_type}, "
-            f"remote={self.remote}, active={self.active})"
-        )
