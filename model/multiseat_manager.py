@@ -55,3 +55,37 @@ class MultiSeatManager(ABC):
     def detach_session_from_seat(self, seat: Seat, session_id: str) -> None:
         """Detach a session from a seat by session ID."""
         pass
+
+    @abstractmethod
+    def get_parent_device(self,  device_path: str) -> Device:
+        """Return the parent Device of the given device path within the given seat."""
+        pass
+
+    @abstractmethod
+    def get_children_devices(self,  device_children: List[str]) -> List[Device]:
+        """Return a list of child Devices from a list of device paths."""
+        pass
+
+    @abstractmethod
+    def get_device_seat(self, device_path: str) -> str:
+        """
+        Return the seat ID to which a device (by path) belongs.
+        If no seat contains the device, return None.
+        """
+        pass
+
+    @abstractmethod
+    def add_seat(self, device_path: str, seat_id: str) -> None:
+        """Create a new seat by attaching a device to it."""
+        pass
+
+    @abstractmethod
+    def remove_seat(self, seat_id: str) -> None:
+        """Remove a seat and detach all devices and sessions."""
+        pass
+
+    @abstractmethod
+    def flush_all_devices(self) -> None:
+        """Detach all devices from all seats."""
+        pass
+

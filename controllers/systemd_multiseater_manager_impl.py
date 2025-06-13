@@ -2,6 +2,7 @@ import os
 from typing import List
 import subprocess
 
+from controllers.device_extractor import DevicesExtractor
 from model.data.device import Device
 from model.data.seat import Seat
 from model.data.session import Session
@@ -15,7 +16,7 @@ class SystemdMultiSeatManager(MultiSeatManager):
     def get_seats(self) -> List[Seat]:
         get_seats = subprocess.check_output(['loginctl', 'list-seats'], text=True)
         seats: List[Seat] = []
-        print(get_seats)
+
 
         for line in get_seats.strip().split('\n')[1:]:
             if "seats listed." in line or not line:
@@ -65,35 +66,13 @@ class SystemdMultiSeatManager(MultiSeatManager):
         return devices
 
     def get_devices_by_seat(self, seat_id: str) -> List[Device]:
-        try:
-            # Run the whole pipeline as a shell command
-            cmd = f"loginctl seat-status {seat_id} | grep /sys/devices"
-            output = subprocess.check_output(cmd, shell=True, text=True).strip()
+        # Run the whole pipeline as a shell command
+        cmd = f"loginctl seat-status {seat_id} | grep /sys/devices"
+        output = subprocess.check_output(cmd, shell=True, text=True).strip()
+        extractor = DevicesExtractor(output)
 
-            devices = []
+        return  extractor.extract_devices()
 
-            for line in output.splitlines():
-                parts = line.strip().split()
-                if not parts:
-                    continue
-
-                # First part is always the sysfs path
-                path = parts[0]
-
-                # Second part (like input:input4) gives us the type
-                type_info = parts[1] if len(parts) > 1 else "unknown"
-                type_ = type_info.split(":")[0]
-
-                # Use the basename of the path as a fallback name
-                name = os.path.basename(path)
-
-                devices.append(Device(path=path, type_=type_, name=name))
-
-            return devices
-
-        except subprocess.CalledProcessError as e:
-            print(f"[Error] Failed to get devices for seat '{seat_id}': {e}")
-            return []
 
     def add_device_to_seat(self, seat: Seat, device: Device) -> None:
         """
@@ -146,4 +125,60 @@ class SystemdMultiSeatManager(MultiSeatManager):
             print(f"[Info] Terminated session {session_id} from seat {seat.seat_id}")
         except subprocess.CalledProcessError as e:
             print(f"[Error] Failed to terminate session: {e}")
+
+    def get_parent_device(self,  device_path: str) -> Device:
+        devices = self.get_all_devices()
+        target_device = next((d for d in devices if d.path == device_path), None)
+
+        if not target_device or not target_device.parent_path:
+            return None
+
+        return next((d for d in devices if d.path == target_device.parent_path), None)
+
+    def get_children_devices(self, device_children: List[str]) -> List[Device]:
+        devices = self.get_all_devices()
+        children = [device for device in devices if device.path in device_children]
+        return children
+
+    def get_device_seat(self, device_path: str) -> str:
+        """
+        Searches all seats to find the one that contains the given device.
+        """
+        seats = self.get_seats()
+        for seat in seats:
+            for device in seat.devices:
+                if device.path == device_path:
+                    return seat.seat_id
+        return None
+
+    def add_seat(self, device_path: str, seat_id: str) -> None:
+        """
+        Creates a new seat by attaching the given device to the given seat_id.
+        """
+        try:
+            subprocess.check_call(["loginctl", "attach", seat_id, device_path])
+        except subprocess.CalledProcessError as e:
+            print(f"[Error] Could not attach {device_path} to {seat_id}: {e}")
+
+    def remove_seat(self, seat_id: str) -> None:
+        """
+        Detach all devices from the seat to effectively 'remove' it.
+        Systemd does not support explicitly deleting a seat; removing all its devices achieves this.
+        """
+        devices = self.get_devices_by_seat(seat_id)
+        for device in devices:
+            try:
+                subprocess.check_call(["loginctl", "detach", device.path])
+            except subprocess.CalledProcessError as e:
+                print(f"[Error] Failed to detach {device.path} from seat {seat_id}: {e}")
+
+    def flush_all_devices(self) -> None:
+        """
+        Uses loginctl to flush all devices system-wide.
+        """
+        try:
+            subprocess.check_call(["loginctl", "flush-devices"])
+        except subprocess.CalledProcessError as e:
+            print(f"[Error] Could not flush all devices: {e}")
+
 

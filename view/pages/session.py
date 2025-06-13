@@ -1,6 +1,5 @@
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QListWidget, QListWidgetItem
 
-from controllers.systemd_multiseater_manager_impl import SystemdMultiSeatManager
 from model.multiseat_manager import MultiSeatManager
 from view.components.page_wrapper import PageWrapper
 from view.components.session_list_item import SessionListItem  # You'll create this
@@ -9,8 +8,8 @@ from view.components.session_list_item import SessionListItem  # You'll create t
 class SessionsPage(PageWrapper):
     """Page displaying a list of user sessions."""
 
-    def __init__(self, parent=None):
-        self.controller: MultiSeatManager = SystemdMultiSeatManager()
+    def __init__(self, manager: MultiSeatManager,parent=None):
+        self.manager: MultiSeatManager = manager
         session_list_widget = self.build_ui()
         super().__init__("Session Management", session_list_widget)
 
@@ -27,7 +26,7 @@ class SessionsPage(PageWrapper):
 
     def refresh_sessions(self):
         self.session_list.clear()
-        sessions = self.controller.get_all_sessions()
+        sessions = self.manager.get_all_sessions()
         for session in sessions:
             item = QListWidgetItem()
             widget = SessionListItem(session)  # You need to create this widget

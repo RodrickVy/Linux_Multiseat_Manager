@@ -1,8 +1,10 @@
 from PyQt5.QtWidgets import QApplication
-from view.main_window import MainWindow
+
+from controllers.systemd_multiseater_manager_impl import SystemdMultiSeatManager
+from view.main_window import MultiseatManagerApp
 import sys
 
 app = QApplication(sys.argv)
-window = MainWindow()
+window = MultiseatManagerApp(SystemdMultiSeatManager())
 window.show()
 sys.exit(app.exec_())

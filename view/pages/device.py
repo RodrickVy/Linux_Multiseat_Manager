@@ -1,18 +1,18 @@
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QListWidget, QListWidgetItem
-
-from controllers.systemd_multiseater_manager_impl import SystemdMultiSeatManager
 from model.multiseat_manager import MultiSeatManager
+from view.components.device_preview_title import DevicePreviewTile
 from view.components.page_wrapper import PageWrapper
-from view.components.device_list_item import DeviceListItem  # You'll create this
 
 
 class DevicesPage(PageWrapper):
-    """Page displaying a list of devices across all seats."""
-
-    def __init__(self, parent=None):
-        self.controller: MultiSeatManager = SystemdMultiSeatManager()
+    on_device_selected = None
+    def __init__(self, manager:MultiSeatManager,   parent=None):
+        self.manager = manager
         device_list_widget = self.build_ui()
         super().__init__("Device Management", device_list_widget)
+
+
+
 
     def build_ui(self):
         widget = QWidget()
@@ -27,10 +27,11 @@ class DevicesPage(PageWrapper):
 
     def refresh_devices(self):
         self.device_list.clear()
-        devices = self.controller.get_all_devices()
+        devices = self.manager.get_all_devices()
         for device in devices:
             item = QListWidgetItem()
-            widget = DeviceListItem(device)  # You need to create this widget
-            item.setSizeHint(widget.sizeHint())
+
+            tile = DevicePreviewTile(device, DevicesPage.on_device_selected)
+            item.setSizeHint(tile.sizeHint())
             self.device_list.addItem(item)
-            self.device_list.setItemWidget(item, widget)
+            self.device_list.setItemWidget(item, tile)
