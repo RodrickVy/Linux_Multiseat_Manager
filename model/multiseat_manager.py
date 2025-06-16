@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import List
 
+from model.app_feedback import AppFeedback
 from model.data.device import Device
 from model.data.seat import Seat
 from model.data.session import Session
@@ -10,6 +11,14 @@ class MultiSeatManager(ABC):
     """
     Abstract base class defining the contract for managing multi-seat systems.
     """
+
+    def __init__(self, feedback_listener=None, prompt_inputs_request_listener=None):
+        """
+        :param feedback_listener: A callable that handles AppFeedback events.
+        :param prompt_inputs_request_listener: A callable used to request additional user input.
+        """
+        self.feedback_listener = feedback_listener
+        self.prompt_inputs_request_listener = prompt_inputs_request_listener
 
     @abstractmethod
     def get_seats(self) -> List[Seat]:
@@ -30,6 +39,9 @@ class MultiSeatManager(ABC):
     def get_all_devices(self) -> List[Device]:
         """Retrieve all devices connected to the system."""
         pass
+
+
+
 
     @abstractmethod
     def get_devices_by_seat(self, seat_id: str) -> List[Device]:
@@ -75,7 +87,7 @@ class MultiSeatManager(ABC):
         pass
 
     @abstractmethod
-    def add_seat(self, device_path: str, seat_id: str) -> None:
+    def add_seat(self, device_path: str) -> None:
         """Create a new seat by attaching a device to it."""
         pass
 
